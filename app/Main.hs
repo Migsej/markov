@@ -38,6 +38,7 @@ data Weather
     | Rainy
     | Cloudy
     deriving (Ord, Eq, Show)
+
 test :: IO ()
 test = do
     seed <- initStdGen
@@ -47,6 +48,7 @@ test = do
   where
     tolist :: (a, a, a) -> [a]
     tolist (a, b, c) = [a, b, c]
+
     fromlist :: [a] -> (a, a, a)
     fromlist (a : b : c : _) = (a, b, c)
     fromlist _ = error "ur mom"

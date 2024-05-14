@@ -1,6 +1,7 @@
 module Main where
 
 import Data.Char (toLower)
+import qualified Data.Map as Map
 import System.Process (system)
 import System.Random (initStdGen)
 
@@ -32,9 +33,32 @@ composeABC abc = header abc ++ unparsed_notes
   where
     unparsed_notes = unwords (notes abc) ++ "\n"
 
+data Weather
+    = Sunny
+    | Rainy
+    | Cloudy
+    deriving (Ord, Eq, Show)
+test :: IO ()
+test = do
+    seed <- initStdGen
+    let test_data_set = Map.fromList [(Sunny, Map.fromList [(Sunny, 0.7), (Cloudy, 0.1), (Rainy, 0.2)]), (Rainy, Map.fromList [(Sunny, 0.1), (Cloudy, 0.3), (Rainy, 0.6)]), (Cloudy, Map.fromList [(Sunny, 0.2), (Cloudy, 0.3), (Rainy, 0.5)])]
+    let amount = 1000000
+    print $ fromlist $ map (\x -> fromIntegral x / fromIntegral amount) $ tolist $ foldl count (0, 0, 0) $ take amount $ generateRandom seed Sunny test_data_set
+  where
+    tolist :: (a, a, a) -> [a]
+    tolist (a, b, c) = [a, b, c]
+    fromlist :: [a] -> (a, a, a)
+    fromlist (a : b : c : _) = (a, b, c)
+    fromlist _ = error "ur mom"
+
+    count :: (Int, Int, Int) -> Weather -> (Int, Int, Int)
+    count (sunny, cloudy, rainy) Sunny = (sunny + 1, cloudy, rainy)
+    count (sunny, cloudy, rainy) Cloudy = (sunny, cloudy + 1, rainy)
+    count (sunny, cloudy, rainy) Rainy = (sunny, cloudy, rainy + 1)
+
 music :: IO ()
 music = do
-    _ <- system "abcmidi/midi2abc 'data/Mario Bros. - Super Mario Bros. Theme.mid' > /tmp/asd.abc"
+    _ <- system "abcmidi/midi2abc 'data/Undertale_-_Megalovania.mid' > /tmp/asd.abc"
     file <- readFile "/tmp/asd.abc"
     seed <- initStdGen
     let song = parseABC file
@@ -51,4 +75,4 @@ text = do
     print $ unwords $ take 100 $ generateRandom seed "the us" $ createModel $ tokenizeText file
 
 main :: IO ()
-main = text
+main = test

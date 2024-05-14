@@ -1,0 +1,3 @@
+[submodule "abcmidi"]
+	path = abcmidi
+	url = git@github.com:sshlien/abcmidi.git

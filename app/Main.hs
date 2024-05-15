@@ -48,7 +48,7 @@ instance Hashable Weather
 test :: IO ()
 test = do
     seed <- initStdGen
-    let test_data_set = Map.fromList [(Sunny, Map.fromList [(Sunny, 0.7), (Cloudy, 0.1), (Rainy, 0.2)]), (Rainy, Map.fromList [(Sunny, 0.1), (Cloudy, 0.3), (Rainy, 0.6)]), (Cloudy, Map.fromList [(Sunny, 0.2), (Cloudy, 0.3), (Rainy, 0.5)])]
+    let test_data_set = Map.fromList [(Sunny, Map.fromList [(Sunny, 7), (Cloudy, 1), (Rainy, 2)]), (Rainy, Map.fromList [(Sunny, 1), (Cloudy, 3), (Rainy, 6)]), (Cloudy, Map.fromList [(Sunny, 2), (Cloudy, 3), (Rainy, 5)])]
     let amount = 1000000
     let result = fromlist $ map (\x -> fromIntegral x / fromIntegral amount) $ tolist $ foldl count (0, 0, 0) $ take amount $ generateRandom seed Sunny test_data_set :: (Float, Float, Float)
     print result
@@ -71,7 +71,7 @@ music = do
     file <- readFile "/tmp/asd.abc"
     seed <- initStdGen
     let song = parseABC file
-    let generated_track = take 100 $ generateRandom seed (head (notes song)) $ createModel $ notes song
+    let generated_track = take 200 $ generateRandom seed (head (notes song)) $ createModel $ notes song
     writeFile "/tmp/gen.abc" $ composeABC song{notes = generated_track}
     _ <- system "abcmidi/abc2midi /tmp/gen.abc -o /tmp/gen1.mid"
     _ <- system "timidity /tmp/gen1.mid"

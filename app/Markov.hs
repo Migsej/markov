@@ -1,5 +1,6 @@
 module Markov where
 
+import Control.Arrow (Arrow (second))
 import qualified Data.HashMap.Strict as Map
 import Data.Hashable (Hashable)
 import System.Random (Random (random), RandomGen (split))
@@ -7,16 +8,19 @@ import System.Random (Random (random), RandomGen (split))
 type Model a = Map.HashMap a (Map.HashMap a Float)
 type FrequencyModel a = Map.HashMap a (Map.HashMap a Int)
 
-pick :: (RandomGen g) => [(a, Float)] -> g -> (g, a)
-pick items seed = (snd (split seed), pick' (fst (random seed)) items)
+pick :: (RandomGen g) => [(a, Int)] -> g -> (g, a)
+pick items seed = (snd (split seed), pick' (fst (random seed) * total) (map (second fromIntegral) items))
   where
+    total :: Float
+    total = fromIntegral $ sum $ map snd items
+
     pick' :: Float -> [(a, Float)] -> a
     pick' _ [] = error "epty list :("
     pick' r ((x, probability) : xs)
         | r < probability = x
         | otherwise = pick' (r - probability) xs
 
-generateRandom :: ((RandomGen g), (Hashable a), (Show a)) => g -> a -> Model a -> [a]
+generateRandom :: ((RandomGen g), (Hashable a), (Show a)) => g -> a -> FrequencyModel a -> [a]
 generateRandom rand start model = start : generateRandom new_rand choice model
   where
     possible_states = case Map.lookup start model of
@@ -33,14 +37,8 @@ generate start model = choice : generate choice model
       where
         state_list = Map.toList states
 
-createModel :: (Hashable a) => [a] -> Model a
-createModel states = Map.map convertProbability $ addMembers states Map.empty
-
-convertProbability :: (Hashable a) => Map.HashMap a Int -> Map.HashMap a Float
-convertProbability model = Map.fromList $ map (\(state, x) -> (state, fromIntegral x / total_entries :: Float)) model_list
-  where
-    model_list = Map.toList model
-    total_entries = fromIntegral $ foldl (\acc (_, b) -> acc + b) 0 model_list
+createModel :: (Hashable a) => [a] -> FrequencyModel a
+createModel states = addMembers states Map.empty
 
 combine :: (Hashable a) => FrequencyModel a -> FrequencyModel a -> FrequencyModel a
 combine = Map.unionWith $ Map.unionWith (+)

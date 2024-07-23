@@ -71,7 +71,7 @@ music = do
     file <- readFile "/tmp/asd.abc"
     seed <- initStdGen
     let song = parseABC file
-    let generated_track = take 200 $ generateRandom seed (head (notes song)) $ createModel $ notes song
+    let generated_track = take 100 $ generateRandom seed (head (notes song)) $ createModel $ notes song
     writeFile "/tmp/gen.abc" $ composeABC song{notes = generated_track}
     _ <- system "abcmidi/abc2midi /tmp/gen.abc -o /tmp/gen1.mid"
     _ <- system "timidity /tmp/gen1.mid"

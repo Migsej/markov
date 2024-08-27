@@ -81,7 +81,7 @@ text :: IO ()
 text = do
     file <- readFile "data/bbc_data.csv"
     seed <- initStdGen
-    print $ unwords $ take 100 $ generateRandom seed "the us" $ createModel $ tokenizeText file
+    print $ unwords $ take 100 $ generateRandom seed "denmark is" $ createModel $ tokenizeText file
 
 main :: IO ()
 main = text
